@@ -1,0 +1,85 @@
+body {
+  font-family: 'Poppins';
+  background-color: #f0f0f0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  width: 640px;
+  height: 640px;
+  overflow: hidden;
+}
+
+.control-panel {
+  padding: 20px;
+  background-color: #282c34;
+  color: white;
+  text-align: center;
+  width: 300px; /* Set a fixed width */
+}
+
+#button-container {
+  margin: 20px 0;
+}
+
+button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+#start-button { background-color: #4CAF50; color: white; }
+#stop-button { background-color: #f44336; color: white; }
+#analyze-button { background-color: #2196F3; color: white; }
+#random-button { background-color: #FFC107; color: white; }
+#wait-button { background-color: #FF9800; color: white; }
+
+button:hover {
+  opacity: 0.8;
+}
+
+.video-panel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #eee;
+  width: 1000px;
+  height: 1000px;
+}
+
+#video {
+  border: 5px solid #282c34;
+  border-radius: 10px;
+}
+
+#enter {
+  visibility: hidden;
+}
+
+#num_wait{
+   visibility: hidden;
+}
+
+#num_none{
+  visibility: visible;
+}
+
+#captured-image {
+  display: None;
+}

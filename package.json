@@ -1,0 +1,31 @@
+{
+  "name": "gas-cylinder-weight-detection",
+  "version": "1.0.0",
+  "description": "A desktop application for detecting gas cylinder weight using a camera and saving data to an Excel file.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "keywords": [
+    "electron",
+    "camera",
+    "weight-detection",
+    "excel"
+  ],
+  "author": "Sudharshan",
+  "license": "MIT",
+  "devDependencies": {
+    "axios": "^1.7.2",
+    "electron": "^25.9.8",
+    "electron-builder": "^24.4.0",
+    "exceljs": "^4.4.0"
+  },
+  "dependencies": {
+    "form-data": "^4.0.0",
+    "node-webcam": "^0.8.2",
+    "opencv4nodejs-prebuilt-install": "^4.1.209",
+    "python-shell": "^5.0.0"
+  }
+}

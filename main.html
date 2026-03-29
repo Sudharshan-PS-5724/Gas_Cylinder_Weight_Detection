@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gas Cylinder Weight Detection</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="summa.css">
+</head>
+<body>
+  <div class="container">
+    <div class="control-panel">
+      <h1>Gas Cylinder Weight Detection</h1>
+      <div id="button-container">
+        <button id="start-button">Start</button>
+        <button id="stop-button">Stop</button>
+        <button id="capture-button">Capture</button>
+        <button id="analyze-button">Analyze</button>
+        <button id="wait-button">Wait</button>
+        <input type="number" id="num_wait"></input>
+        <button id="enter">Enter</button>
+        <h2 id="hehe"></h2>
+      </div>
+    </div>
+  </div>
+  <div class="video-panel">
+      <video id="webcam" autoplay playsinline width="640" height="480"></video>
+      <canvas id="captured-image" width="640" height="480" style="display:none;"></canvas>
+  </div>
+  <script src="render.js"></script>
+</body>
+</html>
