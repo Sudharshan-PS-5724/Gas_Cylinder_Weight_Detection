@@ -5,6 +5,13 @@ const FormData = require('form-data');
 
 let mainWindow;
 
+// Where the inference backend lives. Defaults to the Release Share link for the
+// laptop container, so on the Pi you can just run `npm start`.
+// Override per-run with GCWD_SERVER when needed, e.g. for an all-local setup:
+//   GCWD_SERVER=http://127.0.0.1:5000 npm start
+const DEFAULT_SERVER = 'https://meet-marten-55.rshare.io';
+const SERVER_URL = (process.env.GCWD_SERVER || DEFAULT_SERVER).replace(/\/+$/, '');
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
@@ -46,7 +53,7 @@ ipcMain.handle('send-image', async (event, imageData) => {
     formData.append('image', imageBuffer, { filename: 'temp_image.jpg' });
 
     // Send the image to the Flask server
-    const response = await axios.post('http://127.0.0.1:5000/predict', formData, {
+    const response = await axios.post(`${SERVER_URL}/predict`, formData, {
       headers: formData.getHeaders()
     });
 

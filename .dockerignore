@@ -1,0 +1,36 @@
+# Keep the build context small and the image backend-only.
+# (The two .pt model files are NOT ignored — they are copied into the image.)
+
+# Electron frontend — runs on the host, not in the container
+node_modules
+dist
+build
+main.js
+preload.js
+render.js
+main.html
+summa.css
+package.json
+package-lock.json
+
+# Git / IDE / OS
+.git
+.gitignore
+.vscode
+.idea
+Thumbs.db
+.DS_Store
+
+# Python caches and virtualenvs
+__pycache__
+*.pyc
+*.pyo
+.venv
+venv
+env
+
+# Runtime artifacts and data files the backend does not need
+temp_image.jpg
+cropped_images
+*.xlsx
+README.md

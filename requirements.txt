@@ -1,0 +1,8 @@
+# Python dependencies for the inference backend (server.py).
+#
+# ultralytics pulls in a matching torch, numpy, pillow and opencv-python for the
+# current CPU architecture, so it resolves correctly on x86 dev machines and on
+# a Raspberry Pi (arm64) alike. The first install downloads torch (~hundreds of
+# MB) and can take a while on a Pi — this is expected.
+flask>=3.0
+ultralytics>=8.2,<9
