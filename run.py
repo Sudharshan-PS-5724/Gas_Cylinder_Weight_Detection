@@ -91,13 +91,22 @@ def start_docker(port: int, rebuild: bool, lan: bool, detach: bool) -> subproces
     )
 
 
-def start_frontend() -> subprocess.Popen:
+def start_frontend(server_url: str) -> subprocess.Popen:
     npm = shutil.which("npm")
     if npm is None:
         sys.exit("[run] npm not found on PATH — install Node.js to use --frontend")
-    print("[run] starting Electron frontend (npm start) ...")
+    # Point the UI at the backend we just started, unless the user already set
+    # GCWD_SERVER. Without this, main.js falls back to its default (the Release
+    # Share link), so --frontend would talk to the tunnel instead of the local
+    # server we launched.
+    env = dict(os.environ)
+    if "GCWD_SERVER" not in env:
+        env["GCWD_SERVER"] = server_url
+    print(f"[run] starting Electron frontend (npm start), pointing UI at "
+          f"{env['GCWD_SERVER']} ...")
     # shell=True on Windows so the npm.cmd shim resolves correctly.
-    return subprocess.Popen([npm, "start"], cwd=str(ROOT), shell=(os.name == "nt"))
+    return subprocess.Popen([npm, "start"], cwd=str(ROOT), env=env,
+                            shell=(os.name == "nt"))
 
 
 def main() -> int:
@@ -153,7 +162,9 @@ def main() -> int:
             else:
                 print("[run] warning: backend did not report ready in time; "
                       "starting UI anyway.")
-            procs.append(start_frontend())
+            # The backend we started is local to this machine, so the UI talks
+            # to it over localhost (not the Release Share default in main.js).
+            procs.append(start_frontend(f"http://127.0.0.1:{args.port}"))
         else:
             print(f"[run] backend running on port {args.port}. "
                   "Start the UI separately with 'npm start', or pass --frontend.")
@@ -168,8 +179,10 @@ def main() -> int:
         print("\n[run] shutting down ...")
         return 0
     finally:
-        # Don't stop a detached container — it's meant to keep running.
-        if args.mode == "docker" and not detached:
+        # Don't stop a detached container — it's meant to keep running. Guard on
+        # docker actually being installed, or this cleanup masks the real error
+        # (e.g. "docker not found") with a FileNotFoundError traceback.
+        if args.mode == "docker" and not detached and shutil.which("docker"):
             subprocess.run(["docker", "stop", IMAGE_TAG],
                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         for p in procs:

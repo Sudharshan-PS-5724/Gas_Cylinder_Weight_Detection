@@ -16,7 +16,12 @@ WORKDIR /app
 
 # Install deps first so this layer is cached when only the code changes.
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install CPU-only torch first: the default PyPI build bundles CUDA (the
+# nvidia-* packages, several GB) and fills the disk. ultralytics then reuses
+# this torch instead of pulling the CUDA one. The cpu index also serves arm64
+# (Pi) wheels, so this stays multi-arch.
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu \
+    && pip install --no-cache-dir -r requirements.txt
 
 # Copy the server and bake the model weights into the image.
 COPY server.py .
