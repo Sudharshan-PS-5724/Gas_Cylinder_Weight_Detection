@@ -18,10 +18,15 @@ let cylinderCount = 0;
 const DEFAULT_SERVER = 'https://meet-marten-55.rshare.io';
 const SERVER_URL = (process.env.GCWD_SERVER || DEFAULT_SERVER).replace(/\/+$/, '');
 
+// Full-screen kiosk (no window chrome) when GCWD_KIOSK=1 — the Pi launcher sets
+// this. Left unset everywhere else, so `npm start` stays windowed for dev.
+const KIOSK = process.env.GCWD_KIOSK === '1';
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 800,
     height: 700,
+    kiosk: KIOSK,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
