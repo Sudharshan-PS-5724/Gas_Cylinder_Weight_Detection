@@ -29,8 +29,28 @@ The script does three things:
 3. Adds `~/.config/autostart/gas-ifp.desktop` so the launcher runs when the
    desktop session starts.
 
-`start-gas-ifp.sh` waits for the network, `cd`s into the project, runs
-`npm install` on first run, then `npm start`.
+`start-gas-ifp.sh` waits for the network, `cd`s into the project, **activates the
+Python venv `env`**, installs Node deps on first run, then launches the app
+full-screen.
+
+### What it launches (and the two modes)
+
+By default it runs the **full local stack on the Pi** (Python backend + UI):
+`python run.py --mode local --frontend`. That's why it activates the `env` venv —
+the Python/YOLO deps live there. No laptop needed.
+
+Override either of these by exporting them before the script runs (or editing the
+defaults at the top of `start-gas-ifp.sh`):
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `GAS_IFP_DIR` | `~/Desktop/Gas_Cylinder_Weight_Detection-ananth` | project location |
+| `GAS_IFP_VENV` | tries `~/env`, then `<project>/env` | which venv to activate |
+| `GAS_IFP_CMD` | `python run.py --mode local --frontend` | what to launch |
+
+To use the **laptop-as-server (Release Share)** setup instead of running locally,
+set `GAS_IFP_CMD="npm start"` — then it just opens the UI pointing at the remote
+server and the venv isn't needed.
 
 ## If the app does not start after reboot
 
