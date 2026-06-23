@@ -1,3 +1,11 @@
+# Node / Electron
+node_modules/
+
+# Runtime artifacts
+cropped_images/
+uploaded_images/
+gas_cylinder_results.xlsx
+
 # Virtual Environment
 .venv/
 venv/

@@ -44,7 +44,18 @@ captureButton.addEventListener('click', () => {
   if (video.srcObject) {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageData = canvas.toDataURL('image/jpeg');
+    prediction.innerText = 'Processing...';
     sendImageToModel(imageData);
+  }
+});
+
+// Feedback after the Download button writes the results sheet.
+window.addEventListener('excel-downloaded', (event) => {
+  const data = event.detail || {};
+  if (data.error) {
+    prediction.innerText = `Download: ${data.error}`;
+  } else {
+    prediction.innerText = `Saved ${data.count} reading(s) to ${data.path}`;
   }
 });
 

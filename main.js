@@ -1,9 +1,15 @@
 const axios = require('axios');
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const FormData = require('form-data');
+const ExcelJS = require('exceljs');
 
 let mainWindow;
+
+// Accumulated successful readings for this session: { no, time, weight }.
+// Each successful prediction is added here; the Download button writes them out.
+const results = [];
+let cylinderCount = 0;
 
 // Where the inference backend lives. Defaults to the Release Share link for the
 // laptop container, so on the Pi you can just run `npm start`.
@@ -58,11 +64,58 @@ ipcMain.handle('send-image', async (event, imageData) => {
     });
 
     const prediction = response.data.prediction;
-    console.log('Prediction received:', prediction);
+    const error = response.data.error;
+    console.log('Prediction received:', prediction ?? error);
 
-    return { prediction };
+    // A successful reading is a real weight (not an error / not unreadable).
+    if (!error && prediction && prediction !== "Couldn't be read") {
+      cylinderCount += 1;
+      results.push({
+        no: cylinderCount,
+        time: new Date().toLocaleString(),
+        weight: prediction,
+      });
+      console.log(`Saved reading #${cylinderCount}: ${prediction}`);
+    }
+
+    return { prediction, error };
   } catch (error) {
     console.error('Error in main process:', error);
     return { error: error.message };
+  }
+});
+
+// Download button: write the accumulated readings to an .xlsx the user picks.
+ipcMain.on('download-excel', async () => {
+  try {
+    if (results.length === 0) {
+      mainWindow.webContents.send('excel-downloaded', { error: 'No readings yet.' });
+      return;
+    }
+
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Readings');
+    sheet.columns = [
+      { header: 'Cylinder No.', key: 'no', width: 14 },
+      { header: 'Time', key: 'time', width: 26 },
+      { header: 'Weight', key: 'weight', width: 12 },
+    ];
+    results.forEach((row) => sheet.addRow(row));
+
+    const { canceled, filePath } = await dialog.showSaveDialog(mainWindow, {
+      title: 'Save readings',
+      defaultPath: path.join(app.getPath('downloads'), 'gas_cylinder_results.xlsx'),
+      filters: [{ name: 'Excel Workbook', extensions: ['xlsx'] }],
+    });
+    if (canceled || !filePath) return;
+
+    await workbook.xlsx.writeFile(filePath);
+    mainWindow.webContents.send('excel-downloaded', {
+      path: filePath,
+      count: results.length,
+    });
+  } catch (err) {
+    console.error('Error writing results:', err);
+    mainWindow.webContents.send('excel-downloaded', { error: err.message });
   }
 });

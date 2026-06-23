@@ -47,10 +47,15 @@ def predict():
 
 def process_image(image_path):
     try:
-        # Decode the frame once and reuse it for detection and cropping.
-        image = cv2.imread(image_path)
-        if image is None:
+        # Match the working demo's preprocessing: read grayscale and resize to
+        # 640x640 BEFORE detection. The rotation thresholds below use 320 (half
+        # of 640), so detection and cropping must happen on a 640x640 image —
+        # otherwise the rotations, and the digit reads, come out wrong.
+        gray = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+        if gray is None:
             return {"error": "Image not found or cannot be read."}
+        gray = cv2.resize(gray, (640, 640))
+        image = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
 
         # Run text detection model
         results = model(image, verbose=False)
@@ -140,8 +145,15 @@ def process_image(image_path):
             else:
                 highest_conf_pred = valid_preds[confidences.index(max(confidences))]
                 final_prediction = highest_conf_pred
+            # Stitch the decimal point back for display/storage: 157 -> 15.7
+            final_prediction = f"{final_prediction[:2]}.{final_prediction[2:]}"
         else:
             final_prediction = "Couldn't be read"
+
+        # Show each of the (up to 3) ROI reads and the final pick in the logs
+        # (visible via `docker logs` / the server console).
+        print(f"[predict] reads={preds}  in_range={valid_preds}  "
+              f"final={final_prediction}", flush=True)
 
         return {"prediction": final_prediction}
 
@@ -155,7 +167,7 @@ def main():
     # run.py passes 127.0.0.1 for local runs to keep it off the network.
     host = os.environ.get("GCWD_HOST", "0.0.0.0")
     port = int(os.environ.get("GCWD_PORT", "5000"))
-    app.run(host=host, port=port)
+    app.run(host=host, port=port, threaded=True)
 
 
 if __name__ == "__main__":
