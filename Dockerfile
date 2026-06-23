@@ -28,10 +28,14 @@ COPY server.py .
 COPY grayscale_text_detect_model.pt grayscale_digit_detect.pt ./
 
 # 0.0.0.0 so the published port is reachable from the host; YOLO_CONFIG_DIR
-# keeps ultralytics' settings file in a writable location.
+# keeps ultralytics' settings file in a writable location; PYTHONUNBUFFERED
+# streams all stdout/stderr to `docker logs` live (Python block-buffers stdout
+# when it's not a TTY, which a container isn't — without this, prints can be
+# delayed or lost).
 ENV GCWD_HOST=0.0.0.0 \
     GCWD_PORT=5000 \
     OMP_NUM_THREADS=4 \
+    PYTHONUNBUFFERED=1 \
     YOLO_CONFIG_DIR=/tmp/Ultralytics
 
 EXPOSE 5000

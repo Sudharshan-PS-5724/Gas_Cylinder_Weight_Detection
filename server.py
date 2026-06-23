@@ -26,6 +26,7 @@ output_dir = os.path.join(work_dir, "cropped_images")
 # Load models once at startup (not per request).
 model = YOLO(model_path)
 digit_model = YOLO(digit_model_path)
+print("[startup] models loaded; ready for /predict", flush=True)
 
 
 @app.route("/health", methods=["GET"])
